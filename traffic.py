@@ -40,13 +40,15 @@ if "flowSegmentData" in data:
 else:
     raise ValueError("Invalid API response. Check API key and request parameters.")
 
-# Load CSV data
+
 df = pd.read_csv(CSV_FILE)
-df["timestamp"] = pd.to_datetime(df["timestamp"])
+df["timestamp"] = df["timestamp"].str.split(".").str[0]  
+df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+
 df.dropna(inplace=True)
 df.sort_values(by="timestamp", inplace=True)
 
-# Step 3: Exploratory Data Analysis (EDA)
+
 plt.figure(figsize=(12, 6))
 plt.plot(df["timestamp"], df["speed"], label="Traffic Speed")
 plt.title("Traffic Speed Over Time")
@@ -55,7 +57,7 @@ plt.ylabel("Speed (KMPH)")
 plt.legend()
 plt.show()
 
-# Seasonal decomposition (if enough data points)
+
 period = 24
 if len(df) >= 2 * period:
     result = seasonal_decompose(df["speed"], model="additive", period=period)
